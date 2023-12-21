@@ -1,0 +1,38 @@
+# Local PV
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongodb-rocket
+  namespace: {{ .Release.Namespace }}
+spec:
+  capacity:
+    storage: 50G
+  persistentVolumeReclaimPolicy: {{ .Values.volume.mongodb.reclaimPolicy }}
+  accessModes: 
+    - {{ .Values.volume.mongodb.accessMode }}
+  local:
+    path: {{ .Values.volume.mongodb.path.local.data }}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: local
+              operator: In
+              values:
+                - "true"
+---
+# Local PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-rocket
+  namespace: {{ .Release.Namespace }}
+spec:
+  resources:
+    requests:
+      storage: 50G
+  volumeMode: {{ .Values.volume.mongodb.volumeMode }}
+  volumeName: mongodb-rocket
+  accessModes: 
+    - {{ .Values.volume.mongodb.accessMode }}

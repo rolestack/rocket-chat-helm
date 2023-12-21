@@ -1,0 +1,38 @@
+# Local PV
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: rocket
+  namespace: {{ .Release.Namespace }}
+spec:
+  capacity:
+    storage: 100G
+  persistentVolumeReclaimPolicy: {{ .Values.volume.rocket.reclaimPolicy }}
+  accessModes:
+    - {{ .Values.volume.rocket.accessMode }}
+  local:
+    path: {{ .Values.volume.rocket.path.local.data }}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: local
+              operator: In
+              values:
+                - "true"
+---
+# Local PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rocket
+  namespace: {{ .Release.Namespace }}
+spec:
+  resources:
+    requests:
+      storage: 100G
+  volumeMode: {{ .Values.volume.rocket.volumeMode }}
+  volumeName: rocket
+  accessModes:
+    - {{ .Values.volume.rocket.accessMode }}

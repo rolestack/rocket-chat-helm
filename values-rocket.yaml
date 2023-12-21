@@ -1,0 +1,50 @@
+image:
+  repository: registry.rocket.chat/rocketchat/rocket.chat
+  tag: 3.18.3
+  pullPolicy: IfNotPresent
+host: "chat.hons.io"
+replicaCount: 1
+minAvailable: 1
+smtp:
+  enabled: false
+  username:
+  password:
+  host:
+  port: 587
+existingMongodbSecret: "mongodb-rocket"
+persistence:
+  enabled: true
+  existingClaim: rocket
+securityContext:
+  enabled: true
+  runAsUser: 999
+  fsGroup: 999
+ingress:
+  enabled: true
+  pathType: Prefix
+  ingressClassName: "nginx"
+  path: /
+  tls: 
+  - secretName: chat.hons.io-tls 
+    hosts:
+      - chat.hons.io
+service:
+  type: ClusterIP
+  port: 80
+  loadBalancerIP: "172.16.10.6"
+livenessProbe:
+  enabled: true
+  path: /health
+  initialDelaySeconds: 60
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+readinessProbe:
+  enabled: true
+  path: /health
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1

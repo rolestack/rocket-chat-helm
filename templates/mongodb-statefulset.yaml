@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  serviceName: "mongodb-rocket"
+  replicas: {{ .Values.mongodb.replicas }}
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mongodb
+        image: "{{ $.Values.mongodb.image}}:{{ $.Values.mongodb.tag }}"
+        ports:
+          - containerPort: 27017
+        command:
+          - mongod
+          - "--config"
+          - "/etc/mongo/mongo.conf"
+          - "--replSet"
+          - "rocket"
+        env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-rocket
+                key: username
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-rocket
+                key: password
+        volumeMounts:
+          - name: mongodb
+            mountPath: /data/db
+          - name: mongodb-config
+            mountPath: /etc/mongo
+      volumes:
+        - name: mongodb
+          persistentVolumeClaim:
+            claimName: mongodb-rocket
+        - name: mongodb-config
+          configMap:
+            name: mongo-config

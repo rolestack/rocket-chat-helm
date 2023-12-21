@@ -1,0 +1,19 @@
+mongodb:
+  image: mongo
+  tag: 6.0
+  replicas: 1
+volume:
+  rocket:
+    reclaimPolicy: Retain
+    accessMode: ReadWriteMany
+    volumeMode: Filesystem
+    path:
+      local: 
+        data: "/data/rocket-chat/app"
+  mongodb:
+    reclaimPolicy: Retain
+    accessMode: ReadWriteMany
+    volumeMode: Filesystem
+    path:
+      local:
+        data: "/data/rocket-chat/mongodb"
